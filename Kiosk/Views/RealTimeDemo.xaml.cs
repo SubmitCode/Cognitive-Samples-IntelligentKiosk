@@ -32,6 +32,7 @@
 // 
 
 using IntelligentKioskSample.Controls;
+using Newtonsoft.Json;
 using Microsoft.ProjectOxford.Common.Contract;
 using Microsoft.ProjectOxford.Face.Contract;
 using ServiceHelpers;
@@ -46,6 +47,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+//using Serilog;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -79,6 +81,11 @@ namespace IntelligentKioskSample.Views
             this.cameraControl.FilterOutSmallFaces = true;
             this.cameraControl.HideCameraControls();
             this.cameraControl.CameraAspectRatioChanged += CameraControl_CameraAspectRatioChanged;
+
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.Debug()
+            //    .WriteTo.File(@"c:\logs\crowdInsights.log")
+            //    .CreateLogger();
         }
 
         private void CameraControl_CameraAspectRatioChanged(object sender, EventArgs e)
@@ -203,10 +210,15 @@ namespace IntelligentKioskSample.Views
 
             if (e.DetectedFaces == null || !e.DetectedFaces.Any())
             {
+                
                 this.lastDetectedFaceSample = null;
             }
             else
             {
+                //Log.Logger.Information(JsonConvert.SerializeObject(e.DetectedFaces));
+                //Log.Logger.Information(JsonConvert.SerializeObject(e.AnalysisResult));
+                await AddTextToFile(JsonConvert.SerializeObject(e.DetectedFaces));
+                await AddTextToFile(JsonConvert.SerializeObject(e.AnalysisResult));
                 this.lastDetectedFaceSample = e.DetectedFaces;
             }
         }
@@ -435,6 +447,18 @@ namespace IntelligentKioskSample.Views
 
             return match?.SimilarPersistedFace;
         }
+
+
+        private async Task AddTextToFile(String textToSave)
+        {
+            var appFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+            var file = await appFolder.CreateFileAsync("crowdInsights.log",
+                Windows.Storage.CreationCollisionOption.OpenIfExists);
+            await Windows.Storage.FileIO.AppendTextAsync(file, textToSave + Environment.NewLine);
+            // Look in Output Window of Visual Studio for path to file
+            System.Diagnostics.Debug.WriteLine(String.Format("File is located at {0}", file.Path.ToString()));
+        }
+
     }
 
     [XmlType]
