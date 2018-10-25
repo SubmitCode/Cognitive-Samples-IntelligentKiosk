@@ -39,6 +39,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.ProjectOxford.Vision.Contract;
+using Face = Microsoft.ProjectOxford.Face.Contract.Face;
+using FaceRectangle = Microsoft.ProjectOxford.Face.Contract.FaceRectangle;
 
 namespace ServiceHelpers
 {
@@ -93,12 +96,12 @@ namespace ServiceHelpers
                 new FaceServiceClient(ApiKey);
         }
 
-        private static async Task<TResponse> RunTaskWithAutoRetryOnQuotaLimitExceededError<TResponse>(Func<Task<TResponse>> action)
+        private static async Task<TResult> RunTaskWithAutoRetryOnQuotaLimitExceededError<TResult>(Func<Task<TResult>> action)
         {
             int retriesLeft = FaceServiceHelper.RetryCountOnQuotaLimitError;
             int delay = FaceServiceHelper.RetryDelayOnQuotaLimitError;
 
-            TResponse response = default(TResponse);
+            TResult response = default(TResult);
 
             while (true)
             {
