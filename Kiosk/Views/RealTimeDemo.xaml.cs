@@ -195,7 +195,11 @@ namespace IntelligentKioskSample.Views
 
         private async Task ComputeFaceIdentificationAsync(ImageAnalyzer e)
         {
+<<<<<<< HEAD
             await e.IdentifyFacesAsync();            
+=======
+            await e.IdentifyFacesAsync();
+>>>>>>> 4e62acd16a0e4e3ac55e176c26013ff9922ad9e6
             if (!e.IdentifiedPersons.Any())
             {
                 this.lastIdentifiedPersonSample = null;
@@ -212,7 +216,7 @@ namespace IntelligentKioskSample.Views
 
             if (e.DetectedFaces == null || !e.DetectedFaces.Any())
             {
-                
+
                 this.lastDetectedFaceSample = null;
             }
             else
@@ -283,7 +287,11 @@ namespace IntelligentKioskSample.Views
                 foreach (var item in this.lastSimilarPersistedFaceSample)
                 {
                     Visitor visitor;
+<<<<<<< HEAD
                                         
+=======
+
+>>>>>>> 4e62acd16a0e4e3ac55e176c26013ff9922ad9e6
                     if (this.visitors.TryGetValue(item.SimilarPersistedFace.PersistedFaceId, out visitor))
                     {
                         visitor.Count++;
