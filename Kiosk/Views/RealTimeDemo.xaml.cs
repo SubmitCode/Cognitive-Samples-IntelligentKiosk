@@ -32,6 +32,7 @@
 // 
 
 using IntelligentKioskSample.Controls;
+using Newtonsoft.Json;
 using Microsoft.ProjectOxford.Common.Contract;
 using Microsoft.ProjectOxford.Face.Contract;
 using ServiceHelpers;
@@ -46,6 +47,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Serilog;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -79,6 +81,11 @@ namespace IntelligentKioskSample.Views
             this.cameraControl.FilterOutSmallFaces = true;
             this.cameraControl.HideCameraControls();
             this.cameraControl.CameraAspectRatioChanged += CameraControl_CameraAspectRatioChanged;
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File(@"c:\logs\crowdInsights.log")
+                .CreateLogger();
         }
 
         private void CameraControl_CameraAspectRatioChanged(object sender, EventArgs e)
@@ -203,10 +210,14 @@ namespace IntelligentKioskSample.Views
 
             if (e.DetectedFaces == null || !e.DetectedFaces.Any())
             {
+                
                 this.lastDetectedFaceSample = null;
             }
             else
             {
+                var str = JsonConvert.SerializeObject(e.DetectedFaces);
+                Log.Logger.Information(str);
+                //Log.CloseAndFlush();
                 this.lastDetectedFaceSample = e.DetectedFaces;
             }
         }
@@ -435,6 +446,7 @@ namespace IntelligentKioskSample.Views
 
             return match?.SimilarPersistedFace;
         }
+
     }
 
     [XmlType]
