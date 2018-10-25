@@ -99,9 +99,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="IntelligentKioskSample_TemporaryKey.pfx" />
-    <None Include="log4net.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

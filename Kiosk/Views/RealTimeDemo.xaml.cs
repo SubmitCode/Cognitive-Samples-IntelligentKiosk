@@ -81,11 +81,6 @@ namespace IntelligentKioskSample.Views
             this.cameraControl.FilterOutSmallFaces = true;
             this.cameraControl.HideCameraControls();
             this.cameraControl.CameraAspectRatioChanged += CameraControl_CameraAspectRatioChanged;
-
-            //Log.Logger = new LoggerConfiguration()
-            //    .MinimumLevel.Debug()
-            //    .WriteTo.File(@"c:\logs\crowdInsights.log")
-            //    .CreateLogger();
         }
 
         private void CameraControl_CameraAspectRatioChanged(object sender, EventArgs e)
@@ -131,7 +126,7 @@ namespace IntelligentKioskSample.Views
                     }
                 });
 
-                await Task.Delay(1000);
+                await Task.Delay(2000);
             }
         }
 
@@ -172,6 +167,14 @@ namespace IntelligentKioskSample.Views
             this.UpdateEmotionTimelineUI(e);
 
             this.debugText.Text = string.Format("Latency: {0}ms", (int)(DateTime.Now - start).TotalMilliseconds);
+            foreach (var face in e.SimilarFaceMatches)
+            {
+                await AddTextToFile(JsonConvert.SerializeObject(face));
+            }
+            foreach (var face in e.DetectedFaces)
+            {
+                await AddTextToFile(JsonConvert.SerializeObject(face));
+            }
 
             this.isProcessingPhoto = false;
         }
@@ -193,7 +196,6 @@ namespace IntelligentKioskSample.Views
         private async Task ComputeFaceIdentificationAsync(ImageAnalyzer e)
         {
             await e.IdentifyFacesAsync();
-
             if (!e.IdentifiedPersons.Any())
             {
                 this.lastIdentifiedPersonSample = null;
@@ -210,15 +212,11 @@ namespace IntelligentKioskSample.Views
 
             if (e.DetectedFaces == null || !e.DetectedFaces.Any())
             {
-                
+
                 this.lastDetectedFaceSample = null;
             }
             else
             {
-                //Log.Logger.Information(JsonConvert.SerializeObject(e.DetectedFaces));
-                //Log.Logger.Information(JsonConvert.SerializeObject(e.AnalysisResult));
-                await AddTextToFile(JsonConvert.SerializeObject(e.DetectedFaces));
-                await AddTextToFile(JsonConvert.SerializeObject(e.AnalysisResult));
                 this.lastDetectedFaceSample = e.DetectedFaces;
             }
         }
@@ -279,11 +277,13 @@ namespace IntelligentKioskSample.Views
         {
             if (this.lastSimilarPersistedFaceSample != null)
             {
+
                 bool demographicsChanged = false;
                 // Update the Visitor collection (either add new entry or update existing)
                 foreach (var item in this.lastSimilarPersistedFaceSample)
                 {
                     Visitor visitor;
+
                     if (this.visitors.TryGetValue(item.SimilarPersistedFace.PersistedFaceId, out visitor))
                     {
                         visitor.Count++;
